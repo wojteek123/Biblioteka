@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="Biblioteka.Views.AddClient"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewmodel="clr-namespace:Biblioteka.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodel:AddClientViewModel}"
+             mc:Ignorable="d" 
+             Height="450" Width="250">
+    
+    <Grid  >
+
+
+
+        <TextBlock HorizontalAlignment="Left" Margin="36,37,0,0" TextWrapping="Wrap" Text="Dodaj nowego Czytelnika" VerticalAlignment="Top"/>
+
+
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,78,0,0" TextWrapping="Wrap" Text="Imię" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="100,71,0,0" TextWrapping="Wrap" Text="{Binding klient.name}" VerticalAlignment="Top" Width="120"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,111,0,0" TextWrapping="Wrap" Text="Nazwisko" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="100,110,0,0" TextWrapping="Wrap" Text="{Binding klient.surname}" VerticalAlignment="Top" Width="120"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,142,0,0" TextWrapping="Wrap" Text="Pesel" VerticalAlignment="Top"/>
+        <TextBox x:Name="pesel" PreviewTextInput="PeselPreviewChecker" HorizontalAlignment="Left" Height="23" Margin="100,144,0,0" TextWrapping="Wrap" Text="{Binding klient.pesel}" VerticalAlignment="Top" Width="120"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,180,0,0" TextWrapping="Wrap" Text="Telefon" VerticalAlignment="Top" />
+        <TextBox x:Name="phoneNumnber" PreviewTextInput="PhoneNumberPreviewChecker" HorizontalAlignment="Left" Height="23" Margin="101,179,0,0" TextWrapping="Wrap" Text="{Binding klient.telefon}" VerticalAlignment="Top" Width="120"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,216,0,0" TextWrapping="Wrap" Text="Email" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="100,215,0,0" TextWrapping="Wrap" Text="{Binding klient.email}" VerticalAlignment="Top" Width="120"/>
+
+
+
+
+
+
+
+
+        
+        
+       
+       
+        
+
+        <Button Command="{Binding AddClientCommand}" Content="Dodaj Czytelnika" HorizontalAlignment="Left" Margin="10,256,0,0" VerticalAlignment="Top" Width="102"/>
+
+
+    </Grid>
+</UserControl>
