@@ -15,7 +15,8 @@ namespace Biblioteka.ViewModels
     public class AddBookViewModel : ObservableObject
     {
         public ICommand AddBook { get; set; }
-        
+
+
 
         public ObservableCollection<string> gatunki { get; set; }
 
@@ -26,12 +27,25 @@ namespace Biblioteka.ViewModels
             set => SetProperty(ref _book, value);
         }
 
+        private bool UseSQLite;
 
-
-        public AddBookViewModel()
+        public AddBookViewModel(bool usesqlite)
         {
+            UseSQLite = usesqlite;
             Init();
         }
+        private IDBConnector GetNewDBConnector()
+        {
+            if (UseSQLite)
+            {
+                return new SQLiteDBConnector();
+            }
+            else
+            {
+                return new MySqlDBConnector();
+            }
+        }
+
 
         private void Init()
         {
@@ -42,7 +56,7 @@ namespace Biblioteka.ViewModels
 
             try
             {
-                using (var reader = new DBConnector().SearchGenreSync())
+                using (var reader = GetNewDBConnector().SearchGenreSync())
                 {
                     if (!reader.HasRows)
                     {
@@ -85,25 +99,17 @@ namespace Biblioteka.ViewModels
 
             try
             {
-                using (var conn = new DBConnector())
+                using (var reader = await GetNewDBConnector().GetGatunekID(book.gatunek))
                 {
-                    
-                    var reader =await conn.GetGatunekID(book.gatunek);
-                    MessageBox.Show("dzial");
-
                     string gatunekID = "1";
                     if (reader.Read())
                         gatunekID = reader.GetValue(0).ToString();
-
-                    reader.Close();
-                    reader.Dispose();
-
-                    if (await conn.AddBook(book.tytul, gatunekID, book.wydawca, book.autor, book.egzemplarze, book.MakeSQLDateOnly()) < 1)
+                    if (await GetNewDBConnector().AddBook(book.tytul, gatunekID, book.wydawca, book.autor, book.egzemplarze, book.MakeSQLDateOnly()) < 1)
                         MessageBox.Show("Coś poszło nie tak!");
                     else
-                        MessageBox.Show("Dodano " + book.tytul+"!");
-                }
+                        MessageBox.Show("Dodano " + book.tytul + "!");
 
+                }
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 

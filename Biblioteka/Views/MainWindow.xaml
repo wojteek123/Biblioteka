@@ -109,17 +109,18 @@
         <TextBlock HorizontalAlignment="Left" Margin="607,206,0,0" TextWrapping="Wrap" Text="na" VerticalAlignment="Top"/>
         <TabControl HorizontalAlignment="Left" Height="377" Margin="696,10,0,0" VerticalAlignment="Top" Width="250">
             <TabItem Header="Dodaj Książkę">
-                <Grid Background="#FFE5E5E5">
+                <Grid>
 
-                    <uc:AddBook/>
+                    <uc:AddBook DataContext="{Binding AddBookVM}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Dodaj Czytelnika">
-                <Grid Background="#FFE5E5E5">
-                    <uc:AddClient />
+                <Grid>
+                    <uc:AddClient DataContext="{Binding AddClientVM}" />
                 </Grid>
             </TabItem>
         </TabControl>
+        <CheckBox Command="{Binding ChangeDatabase}" IsChecked="{Binding UseSQLite}" Content="Używaj SQLite" HorizontalAlignment="Left" Margin="355,14,0,0" VerticalAlignment="Top"/>
 
 
 

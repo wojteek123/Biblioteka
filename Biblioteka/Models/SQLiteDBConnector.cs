@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-using System;
+﻿using System;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
@@ -12,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Biblioteka.Models
 {
-    internal class DBConnector : IDisposable,IDBConnector
+    internal class SQLiteDBConnector : IDisposable,IDBConnector
     {
 
 
@@ -20,22 +15,27 @@ namespace Biblioteka.Models
         private SQLiteCommand command;
 
 
-        public DBConnector()
+        public SQLiteDBConnector()
         {
             connection = new SQLiteConnection("Data Source=Biblioteka.db;");
             OpenConnection();
         }
-        private void OpenConnection()
+        private async Task OpenConnection()
         {
             if(connection.State == System.Data.ConnectionState.Closed)
             {
-                connection.Open();
+                await connection.OpenAsync();
             }
         }
-
+        public void Close()
+        {
+            connection.Close();
+            command.Dispose();
+            connection.Dispose();
+        }
         public async Task<DbDataReader> /*MySqlDataReader*/  SearchClient(string search)
         {
-            OpenConnection();
+            await OpenConnection();
             string query = "SELECT * FROM klienci WHERE Imie LIKE  @search OR Nazwisko LIKE  @search;";
             command = new SQLiteCommand(query, connection);
             command.Parameters.AddWithValue("@search", "%" + search + "%");
@@ -47,7 +47,7 @@ namespace Biblioteka.Models
         }
         public  async Task<DbDataReader>   SearchBook(string search)
         {
-            OpenConnection();
+            await OpenConnection();
             string booksearch = "SELECT IDKsiazki,Tytul,gatunek.Nazwa,Wydawnictwo,Autor,Egzemplarze,ksiazki.Data_wydania FROM ksiazki LEFT JOIN gatunek ON ksiazki.GatunekID = gatunek.GatunekID WHERE Tytul LIKE @search ;";
             command = new SQLiteCommand(booksearch, connection);
             command.Parameters.AddWithValue("@search", "%"+search+"%");
@@ -56,7 +56,7 @@ namespace Biblioteka.Models
         }
         public  async Task<DbDataReader> SearchGenre()
         {
-            OpenConnection();
+            await OpenConnection ();
             string booksearch = "SELECT gatunek.Nazwa FROM gatunek;";
             command = new SQLiteCommand(booksearch, connection);
 
@@ -76,7 +76,7 @@ namespace Biblioteka.Models
 
         public  async Task<DbDataReader> GetGatunekID(string name)
         {
-            OpenConnection();
+            await OpenConnection ();
             string booksearch = "SELECT GatunekID FROM gatunek WHERE gatunek.Nazwa='@name';";
             command = new SQLiteCommand(booksearch, connection);
             command.Parameters.AddWithValue("@name", name);
@@ -87,7 +87,7 @@ namespace Biblioteka.Models
         }
         public  async Task<DbDataReader> ClientsWithBooks()
         {
-            OpenConnection();
+            await OpenConnection ();
             string query1 = "SELECT klienci.`IDKlienta`, `Imie`, `Nazwisko`, `Pesel`, `Email`, `Telefon` FROM `klienci` ";
             string query2 = "RIGHT JOIN wypozyczenia ON klienci.IDKlienta = wypozyczenia.IDKlienta ";
             string query3 = "WHERE wypozyczenia.Data_zwrotu IS NULL;";
@@ -116,7 +116,7 @@ namespace Biblioteka.Models
         }
         public async Task<int> AddClient(string name, string surname, string pesel, string email, string telefon)
         {
-            OpenConnection();
+            await OpenConnection();
             string values ="@name,@surname,@pesel,@email,@telefon";
             string query = "INSERT INTO klienci(Imie,Nazwisko,Pesel,Email,Telefon)VALUES("+values+");";
 
@@ -135,7 +135,7 @@ namespace Biblioteka.Models
 
         public  async Task<DbDataReader> GetBorrows(string ClientID)
         {
-            OpenConnection();
+            await OpenConnection();
             string borrowSearch = "SELECT wypozyczenia.IDWypozyczenia, ksiazki.Tytul,wypozyczenia.Data_wypozyczenia,wypozyczenia.Czas_do_zwrotu,wypozyczenia.Data_zwrotu,ksiazki.IDKsiazki,ksiazki.Egzemplarze";
             string borrowSearch2 = " FROM wypozyczenia";
             string borrowSearch3 = " LEFT JOIN ksiazki ON wypozyczenia.IDKsiazki = ksiazki.IDKsiazki WHERE IDKlienta = @ClientID;";
@@ -151,7 +151,7 @@ namespace Biblioteka.Models
         }
         public async Task<int> Borrow(string IDKlienta, string IDKsiazki, string data_wypozyczenia, string czas_do_zwrotu)
         {
-            OpenConnection();
+            await OpenConnection();
             // (1,1,'2000-1-6','2000-1-7')
             string values = "@IDKlienta,@IDKsiazki,@data_wypozyczenia,@czas_do_zwrotu";
             string query = "INSERT INTO `wypozyczenia`(`IDKlienta`, `IDKsiazki`, `Data_wypozyczenia`, `Czas_do_zwrotu`) VALUES(" + values + ");";
@@ -169,7 +169,7 @@ namespace Biblioteka.Models
 
         public  async Task<DbDataReader> GetCopies(string IDKsiazki)
         {
-            OpenConnection();
+            await OpenConnection();
             string copiesSearch ="SELECT Egzemplarze FROM ksiazki WHERE IDKsiazki=@IDKsiazki;";
             command = new SQLiteCommand(copiesSearch, connection);
             command.Parameters.AddWithValue("@IDKsiazki",IDKsiazki);
@@ -182,7 +182,7 @@ namespace Biblioteka.Models
 
         public async Task<int> ModifyBookCopy(string IDKsiazki,string setCopies)
         {
-            OpenConnection();
+            await OpenConnection();
             string Query = "UPDATE `ksiazki` SET `Egzemplarze`=@setCopies WHERE IDKsiazki=@IDKsiazki;";
             command = new SQLiteCommand(Query, connection);
             command.Parameters.AddWithValue("@IDKsiazki", IDKsiazki);
@@ -193,7 +193,7 @@ namespace Biblioteka.Models
         }
         public async Task<int> ModifyBorrow(string IDBorrow, string backdate)
         {
-            OpenConnection();
+            await OpenConnection();
             string Query = "UPDATE `wypozyczenia` SET `Data_zwrotu`= @backdate WHERE IDWypozyczenia=@IDBorrow;";
             command = new SQLiteCommand(Query, connection);
 

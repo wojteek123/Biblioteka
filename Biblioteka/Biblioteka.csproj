@@ -227,9 +227,10 @@
     <Compile Include="Models\Book.cs" />
     <Compile Include="Models\Borrow.cs" />
     <Compile Include="Models\DateConverter.cs" />
-    <Compile Include="Models\DBConnector.cs" />
+    <Compile Include="Models\SQLiteDBConnector.cs" />
     <Compile Include="Models\IDBConnector.cs" />
     <Compile Include="Models\Klient.cs" />
+    <Compile Include="Models\MySqlDBConnector.cs" />
     <Compile Include="ViewModels\AddBookViewModel.cs" />
     <Compile Include="ViewModels\AddClientViewModel.cs" />
     <Compile Include="ViewModels\ClientDetailsViewModel.cs" />

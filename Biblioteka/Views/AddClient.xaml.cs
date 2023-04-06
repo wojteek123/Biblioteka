@@ -19,7 +19,7 @@ namespace Biblioteka.Views
         public AddClient()
         {
             InitializeComponent();
-            DataContext = new AddClientViewModel();
+            //DataContext = new AddClientViewModel();
 
         }
 

@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Biblioteka.Models
 {
-    interface IDBConnector : IDisposable
+    public interface IDBConnector : IDisposable
     {
+        void Close();
         Task<DbDataReader> SearchClient(string search);
         Task<DbDataReader> SearchBook(string search);
         Task<DbDataReader> SearchGenre();

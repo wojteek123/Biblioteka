@@ -12,7 +12,7 @@ namespace Biblioteka.ViewModels
     public class ClientDetailsViewModel : ObservableObject
     {
         private Klient _klient;
-        public Klient klient { get => _klient; set=> SetProperty(ref _klient, value); }
+        public Klient klient { get => _klient; set => SetProperty(ref _klient, value); }
 
         private string _Title;
         public string Title { get => _Title; set => SetProperty(ref _Title, value); }
@@ -23,37 +23,36 @@ namespace Biblioteka.ViewModels
         private int _selectedBorrow;
         public int selectedBorrow { get => _selectedBorrow; set => SetProperty(ref _selectedBorrow, value); }
 
-        public ClientDetailsViewModel()
+        private bool UseSQLite;
+        public ClientDetailsViewModel() { }
+        public ClientDetailsViewModel(bool usesqlite, Klient klient)
         {
-
-        }
-        public ClientDetailsViewModel(Klient klient)
-        {
+            UseSQLite = usesqlite;
             borrows = new ObservableCollection<Borrow>();
             this.klient = klient;
             Title = klient.name + " " + klient.surname;
 
             GetBorrows();
-            /*
-            var CTask = new Task(() => { GetBorrows(); });
-            CTask.Start();
-            CTask.Wait();
 
+        }
 
-            */
+        private IDBConnector GetNewDBConnector()
+        {
+            if (UseSQLite)
+            {
+                return new SQLiteDBConnector();
+            }
+            else
+            {
+                return new MySqlDBConnector();
+            }
         }
         private async void GetBorrows()
         {
             try
             {
-                using (var reader = await new DBConnector().GetBorrows(klient.ID))
+                using (var reader = await GetNewDBConnector().GetBorrows(klient.ID))
                 {
-
-                    if (!reader.HasRows)
-                    {
-                        return;
-                    }
-
                     while (reader.Read())
                     {
                         string temp;
@@ -73,7 +72,6 @@ namespace Biblioteka.ViewModels
                         borrows.Last().BorrowCommand = new AsyncRelayCommand(ConfirmBack);
                     }
                 }
-
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 
@@ -97,37 +95,30 @@ namespace Biblioteka.ViewModels
 
             string currentDate = DateConverter.MakeDatePickerDate(DateTime.Now.ToString());
             currentDate = DateConverter.MakeSQLDateOnly(currentDate);
-            
+
 
 
             try
             {
-                using (var conn = new DBConnector())
+                var newCopies = int.Parse(borrows[selectedBorrow].BookCopy);
+                newCopies++;
+                if (await GetNewDBConnector().ModifyBorrow(borrows[selectedBorrow].ID, currentDate) != 1)
                 {
-                    var newCopies = int.Parse(borrows[selectedBorrow].BookCopy);
-                    newCopies++;
-                    var asd = conn.ModifyBorrow(borrows[selectedBorrow].ID, currentDate);
-
-                    if (await conn.ModifyBorrow(borrows[selectedBorrow].ID, currentDate) != 1)
+                    MessageBox.Show("Coś poszło nie tak!");
+                }
+                else
+                {
+                    if (await GetNewDBConnector().ModifyBookCopy(borrows[selectedBorrow].BookID, newCopies.ToString()) != 1)
                     {
                         MessageBox.Show("Coś poszło nie tak!");
                     }
                     else
                     {
-                        if (await conn.ModifyBookCopy(borrows[selectedBorrow].BookID, newCopies.ToString()) != 1)
-                        {
-                            MessageBox.Show("Coś poszło nie tak!");
-                        }
-                        else
-                        {
-                            currentDate = currentDate.Replace('-', '.');
-                            borrows[selectedBorrow].BackDate = currentDate;
+                        currentDate = currentDate.Replace('-', '.');
+                        borrows[selectedBorrow].BackDate = currentDate;
 
-
-                        }
 
                     }
-
 
                 }
 

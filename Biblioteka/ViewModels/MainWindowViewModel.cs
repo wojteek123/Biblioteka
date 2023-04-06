@@ -22,8 +22,11 @@ namespace Biblioteka.ViewModels
         public ICommand ClientDetailsCommand { get; }
         public ICommand BorrowCommand { get; }
         public ICommand ClientsWithBooksCommand { get; }
+        public ICommand ChangeDatabase { get; }
 
 
+        private bool _UseSQLite;
+        public bool UseSQLite { get => _UseSQLite; set => SetProperty(ref _UseSQLite, value); }
 
         private string _currentDate;
         public string currentDate { get => _currentDate; set => SetProperty(ref _currentDate, value); }
@@ -32,11 +35,11 @@ namespace Biblioteka.ViewModels
         public int toBorrowDays { get => _toBorrowDays; set => SetProperty(ref _toBorrowDays, value); }
 
         private string _searchBookstring;
-        public string searchBookString { get => _searchBookstring;  set => SetProperty(ref _searchBookstring, value); }
+        public string searchBookString { get => _searchBookstring; set => SetProperty(ref _searchBookstring, value); }
 
         private string _searchClientstring;
         public string searchClientstring { get => _searchClientstring; set => SetProperty(ref _searchClientstring, value); }
-       
+
         private int _selectedClient;
         public int selectedClient { get => _selectedClient; set => SetProperty(ref _selectedClient, value); }
 
@@ -50,20 +53,35 @@ namespace Biblioteka.ViewModels
         public Klient SelectedClient { get => _SelectedKlient; set => SetProperty(ref _SelectedKlient, value); }
 
         private ObservableCollection<Klient> _users;
-        public ObservableCollection<Klient> users {get => _users; set => SetProperty(ref _users, value);}
+        public ObservableCollection<Klient> users { get => _users; set => SetProperty(ref _users, value); }
 
         private ObservableCollection<Book> _books;
-        public ObservableCollection<Book> books {  get => _books; set => SetProperty(ref _books, value);   }
+        public ObservableCollection<Book> books { get => _books; set => SetProperty(ref _books, value); }
 
         private ObservableCollection<Book> _booksToBorrow;
         public ObservableCollection<Book> booksToBorrow { get => _booksToBorrow; set => SetProperty(ref _booksToBorrow, value); }
 
         private AddBookViewModel _AddBookVM;
         private AddClientViewModel _AddClientVM;
-        public AddBookViewModel AddBookVM { get => _AddBookVM; set => SetProperty(ref _AddBookVM, value);}
-        public AddClientViewModel AddClientVM { get => _AddClientVM; set => SetProperty(ref _AddClientVM, value);}
+        public AddBookViewModel AddBookVM { get => _AddBookVM; set => SetProperty(ref _AddBookVM, value); }
+        public AddClientViewModel AddClientVM { get => _AddClientVM; set => SetProperty(ref _AddClientVM, value); }
 
-public MainWindowViewModel()
+        public MainWindowViewModel()
+        {
+            UseSQLite = true;
+            Init();
+
+
+
+
+            ChangeDatabase = new RelayCommand(Init);
+            SearchClientCommand = new AsyncRelayCommand(SearchClient);
+            SearchBookCommand = new AsyncRelayCommand(SearchBook);
+            ClientDetailsCommand = new RelayCommand(ShowClientDetails);
+            BorrowCommand = new RelayCommand(Borrow);
+            ClientsWithBooksCommand = new AsyncRelayCommand(SearchClientsWithBooks);
+        }
+        private void Init()
         {
             currentDate = DateConverter.MakeDatePickerDate(DateTime.Now.ToString());
             toBorrowDays = 14;
@@ -71,36 +89,42 @@ public MainWindowViewModel()
             searchBookString = "";
             searchClientstring = "";
 
-            //AddBookVM = new AddBookViewModel();
-           // AddClientVM = new AddClientViewModel();
-           
-
-
-
 
             users = new ObservableCollection<Klient>();
             books = new ObservableCollection<Book>();
             booksToBorrow = new ObservableCollection<Book>();
 
-            SearchClientCommand = new AsyncRelayCommand(SearchClient);
-            SearchBookCommand = new AsyncRelayCommand(SearchBook);
-            ClientDetailsCommand = new RelayCommand(ShowClientDetails);
-            BorrowCommand = new RelayCommand(Borrow);
-            ClientsWithBooksCommand = new AsyncRelayCommand(SearchClientsWithBooks);
+
+
+            booksToBorrow.Clear();
+            
+
+            AddBookVM = new AddBookViewModel(UseSQLite); 
+            AddClientVM = new AddClientViewModel(UseSQLite);
+
+        }
+        private IDBConnector GetNewDBConnector()
+        {
+            if (UseSQLite)
+            {
+                return new SQLiteDBConnector();
+            }
+            else
+            {
+                return new MySqlDBConnector();
+            }
         }
 
         private async void Borrow()
         {
             if (booksToBorrow.Count == 0)
             {
-
                 MessageBox.Show("Nie wybrano żadnych ksiązek!");
                 return;
-
             }
-            foreach(Book book in booksToBorrow)
+            foreach (Book book in booksToBorrow)
             {
-                if(int.Parse(book.egzemplarze) <1)
+                if (int.Parse(book.egzemplarze) < 1)
                 {
                     MessageBox.Show("Brak egzemplarzy tej książki w bibliotece!");
                     return;
@@ -110,52 +134,46 @@ public MainWindowViewModel()
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Czy na pewno chcesz dokonać wypożyczenia?\n", "Potwierdź wypożyczenie", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.No)
                 return;
-            
 
-            string dataOddania = DateConverter.AddDaysTo(currentDate,toBorrowDays);
+
+            string dataOddania = DateConverter.AddDaysTo(currentDate, toBorrowDays);
             dataOddania = DateConverter.MakeSQLDateOnly(dataOddania);
 
             string dataWyp = DateConverter.MakeSQLDateOnly(currentDate);
 
 
 
-            for(int i=0;i<booksToBorrow.Count;i++)
+            for (int i = 0; i < booksToBorrow.Count; i++)
             {
                 int copies = int.Parse(booksToBorrow[i].egzemplarze);
                 copies--;
                 try
                 {
-                    using (var conn = new DBConnector())
+                    if (await GetNewDBConnector().Borrow(users[selectedClient].ID, booksToBorrow[i].ID, dataWyp, dataOddania) != 1)
                     {
-                        if (await conn .Borrow(users[selectedClient].ID, booksToBorrow[i].ID, dataWyp, dataOddania) != 1)
-                        {
-                            MessageBox.Show("Cos poszlo nie tak!");
-                        }
-                        if (await conn.ModifyBookCopy(booksToBorrow[i].ID, copies.ToString()) != 1)
-                        {
-                            MessageBox.Show("Cos poszlo nie tak!");
-                        }
-                        else
-                        {
-                            books[i].egzemplarze = copies.ToString();
-                        }
-
-
+                        MessageBox.Show("Cos poszlo nie tak!");
                     }
-
-
+                    if (await GetNewDBConnector().ModifyBookCopy(booksToBorrow[i].ID, copies.ToString()) != 1)
+                    {
+                        MessageBox.Show("Cos poszlo nie tak!");
+                    }
+                    else
+                    {
+                        books[i].egzemplarze = copies.ToString();
+                    }
 
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message); }
             }
             
+
             MessageBox.Show("Dodano Wypożyczenie!");
 
         }
         private void ShowClientDetails()
         {
             var client = new Biblioteka.Views.ClientDetails();
-            client.DataContext = new Biblioteka.ViewModels.ClientDetailsViewModel(users[selectedClient]);
+            client.DataContext = new Biblioteka.ViewModels.ClientDetailsViewModel(UseSQLite,users[selectedClient]);
             client.Show();
         }
 
@@ -176,10 +194,10 @@ public MainWindowViewModel()
 
         private async Task SearchBook()
         {
-            
+
             try
             {
-                using (var reader = await new DBConnector().SearchBook(searchBookString))
+                using (var reader = await GetNewDBConnector().SearchBook(searchBookString))
                 {
                     if (!reader.HasRows)
                         MessageBox.Show("Nie znaleziono ksiazek");
@@ -188,7 +206,7 @@ public MainWindowViewModel()
 
                     while (reader.Read())
                     {
-                        books.Add(new Book(reader.GetValue(0).ToString() , reader.GetString(1),
+                        books.Add(new Book(reader.GetValue(0).ToString(), reader.GetString(1),
                             reader.GetString(2), reader.GetString(3),
                             reader.GetString(4), reader.GetValue(5).ToString(),
                             DateConverter.GetDateOnly(reader.GetValue(6).ToString())
@@ -197,9 +215,9 @@ public MainWindowViewModel()
                         books.Last().AddBookCommand = new AsyncRelayCommand(AddCopy);
                         books.Last().RemoveBookCommand = new AsyncRelayCommand(RemoveCopy);
                     }
-                    
-                }
 
+                }
+                
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
@@ -207,10 +225,8 @@ public MainWindowViewModel()
         {
             try
             {
-                Console.WriteLine("await nadchodzi");
-                using (var reader =await new DBConnector().SearchClient(searchClientstring))
+                using (var reader = await GetNewDBConnector().SearchClient(searchClientstring))
                 {
-                    Console.WriteLine("po awaicie");
                     if (!reader.HasRows)
                         MessageBox.Show("Nie znaleziono użytkownika");
                     else
@@ -218,12 +234,13 @@ public MainWindowViewModel()
 
                     while (reader.Read())
                     {
-                        users.Add(new Klient( reader.GetValue(0).ToString(), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5)));
+                        users.Add(new Klient(reader.GetValue(0).ToString(), reader.GetString(1), reader.GetString(2), reader.GetString(3), reader.GetString(4), reader.GetString(5)));
                         users.Last().ClientCommand = new RelayCommand(ShowClientDetails);
                     }
                 }
-
-            }catch(Exception ex) { MessageBox.Show(ex.Message); }
+                
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
 
 
         }
@@ -232,7 +249,7 @@ public MainWindowViewModel()
             users.Clear();
             try
             {
-                using (var reader =await  new DBConnector().ClientsWithBooks())
+                using (var reader = await GetNewDBConnector().ClientsWithBooks())
                 {
                     if (!reader.HasRows)
                     {
@@ -246,9 +263,9 @@ public MainWindowViewModel()
                     {
                         string ID = reader.GetValue(0).ToString();
                         bool b_Add = true;
-                        foreach(Klient klient in users)
+                        foreach (Klient klient in users)
                         {
-                            if(klient.ID == ID)
+                            if (klient.ID == ID)
                                 b_Add = false;
                         }
                         if (b_Add)
@@ -259,7 +276,7 @@ public MainWindowViewModel()
 
                     }
                 }
-
+                
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 
@@ -275,18 +292,16 @@ public MainWindowViewModel()
             copies++;
             try
             {
-                using (var conn = new DBConnector())
+                if (await GetNewDBConnector().ModifyBookCopy(books[selectedBook].ID, copies.ToString()) != 1)
                 {
-                    if (await conn.ModifyBookCopy(books[selectedBook].ID, copies.ToString()) != 1)
-                    {
-                        MessageBox.Show("Cos poszlo nie tak! :(");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Dodano Kopię!");
-                        books[selectedBook].egzemplarze = copies.ToString();
-                    }
+                    MessageBox.Show("Cos poszlo nie tak! :(");
                 }
+                else
+                {
+                    MessageBox.Show("Dodano Kopię!");
+                    books[selectedBook].egzemplarze = copies.ToString();
+                }
+                
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 
@@ -298,25 +313,24 @@ public MainWindowViewModel()
             copies--;
             try
             {
-                using (var conn = new DBConnector())
+                if (await GetNewDBConnector().ModifyBookCopy(books[selectedBook].ID, copies.ToString()) != 1)
                 {
-                    if ( await conn.ModifyBookCopy(books[selectedBook].ID, copies.ToString()) != 1)
-                    {
-                        MessageBox.Show("Cos poszlo bardzo nie tak! :(");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Usunięto Kopię!");
-                        books[selectedBook].egzemplarze = copies.ToString();
-                    }
+                    MessageBox.Show("Cos poszlo bardzo nie tak! :(");
                 }
+                else
+                {
+                    MessageBox.Show("Usunięto Kopię!");
+                    books[selectedBook].egzemplarze = copies.ToString();
+                }
+                
+
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 
 
 
         }
- 
+
 
 
 

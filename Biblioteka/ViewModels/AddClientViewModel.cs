@@ -18,75 +18,69 @@ namespace Biblioteka.ViewModels
 
         private Klient _klient;
         public Klient klient { get => _klient; set => SetProperty(ref _klient, value); }
+        private bool UseSQLite;
 
-        private string connectionString;
-
-        public AddClientViewModel()
+        public AddClientViewModel(bool usesqlite)
         {
+            UseSQLite = usesqlite;
             this.klient = new Klient();
             AddClientCommand = new AsyncRelayCommand(AddClient);
 
         }
 
-
-        public AddClientViewModel(string connString)
+        private IDBConnector GetNewDBConnector()
         {
-            this.connectionString = connString;
-            this.klient = new Klient();
-            AddClientCommand = new AsyncRelayCommand(AddClient);
-
+            if (UseSQLite)
+            {
+                return new SQLiteDBConnector();
+            }
+            else
+            {
+                return new MySqlDBConnector();
+            }
         }
-
 
         private async Task AddClient()
         {
-            if (!klient.CheckEmail(klient.email)){
+            if (!klient.CheckEmail(klient.email))
+            {
                 MessageBox.Show("Zły format adresu Email: " + klient.email);
                 return;
             }
-            if (!klient.CheckPhone(klient.telefon)){
+            if (!klient.CheckPhone(klient.telefon))
+            {
                 MessageBox.Show("Zły format numeru telefonu: " + klient.telefon);
                 return;
             }
-            if (!klient.CheckPesel(klient.pesel)){
+            if (!klient.CheckPesel(klient.pesel))
+            {
                 MessageBox.Show("Zły format Peselu: " + klient.pesel);
                 return;
             }
-            if (klient.IsEmpty()){
+            if (klient.IsEmpty())
+            {
                 MessageBox.Show("Jedno z pól jest puste!");
                 return;
             }
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Czy na pewno chceż dodać tego użytkownika?\n"+klient.ShowPrettyData(), "Potwierdź dodanie czytlenika", System.Windows.MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Czy na pewno chceż dodać tego użytkownika?\n" + klient.ShowPrettyData(), "Potwierdź dodanie czytlenika", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.Yes)
             {
                 try
                 {
-                    using (var conn = new DBConnector())
+                    if (await GetNewDBConnector().AddClient(klient.name, klient.surname, klient.pesel, klient.email, klient.telefon) < 1)
                     {
-                        if (await conn.AddClient(klient.name, klient.surname, klient.pesel, klient.email, klient.telefon) < 1)
-                        {
-                            MessageBox.Show("Cos poszlo nie tak!");
-                        }
-                        else
-                        {
-
-                            MessageBox.Show("Dodano Czytelnika!");
-                        }
+                        MessageBox.Show("Cos poszlo nie tak!");
                     }
+                    else
+                    {
+                        MessageBox.Show("Dodano Czytelnika!");
+                    }
+
                 }
                 catch (Exception ex) { MessageBox.Show(ex.Message); }
 
 
-
-
             }
-
-
-
-
-
-
-
 
 
         }
