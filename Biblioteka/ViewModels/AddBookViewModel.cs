@@ -56,8 +56,9 @@ namespace Biblioteka.ViewModels
 
             try
             {
-                using (var reader = GetNewDBConnector().SearchGenreSync())
+                using (var db = GetNewDBConnector())
                 {
+                    var reader = db.SearchGenreSync();
                     if (!reader.HasRows)
                     {
                         MessageBox.Show("Nie znaleziono gatunków!");
@@ -76,8 +77,6 @@ namespace Biblioteka.ViewModels
            AddBook = new AsyncRelayCommand(addBook);
 
 
-
-
         }
 
 
@@ -90,7 +89,6 @@ namespace Biblioteka.ViewModels
                 return;
             }
 
-
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Jesteś pewien że chcesz dodać taką książkę?\n "+book.ShowPrettyData(), "Potwierdzenie", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult != MessageBoxResult.Yes)
                 return;
@@ -99,8 +97,9 @@ namespace Biblioteka.ViewModels
 
             try
             {
-                using (var reader = await GetNewDBConnector().GetGatunekID(book.gatunek))
+                using (var db = GetNewDBConnector())
                 {
+                    var reader = await db.GetGatunekID(book.gatunek);
                     string gatunekID = "1";
                     if (reader.Read())
                         gatunekID = reader.GetValue(0).ToString();

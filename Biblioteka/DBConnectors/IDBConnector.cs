@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Biblioteka.Models
 {
-    public interface IDBConnector : IDisposable
+    public interface IDBConnector : IDisposable //HACK shallow module red flag 
     {
         void Close();
+        
         Task<DbDataReader> SearchClient(string search);
         Task<DbDataReader> SearchBook(string search);
         Task<DbDataReader> SearchGenre();

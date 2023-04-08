@@ -51,8 +51,10 @@ namespace Biblioteka.ViewModels
         {
             try
             {
-                using (var reader = await GetNewDBConnector().GetBorrows(klient.ID))
+                using (var db = GetNewDBConnector())
                 {
+                    var reader = await db.GetBorrows(klient.ID);
+
                     while (reader.Read())
                     {
                         string temp;
@@ -71,11 +73,10 @@ namespace Biblioteka.ViewModels
                             ));
                         borrows.Last().BorrowCommand = new AsyncRelayCommand(ConfirmBack);
                     }
+
                 }
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
-
-
 
         }
 
@@ -100,28 +101,23 @@ namespace Biblioteka.ViewModels
 
             try
             {
-                var newCopies = int.Parse(borrows[selectedBorrow].BookCopy);
-                newCopies++;
-                if (await GetNewDBConnector().ModifyBorrow(borrows[selectedBorrow].ID, currentDate) != 1)
+                using (var db = GetNewDBConnector())
                 {
-                    MessageBox.Show("Coś poszło nie tak!");
-                }
-                else
-                {
-                    if (await GetNewDBConnector().ModifyBookCopy(borrows[selectedBorrow].BookID, newCopies.ToString()) != 1)
-                    {
-                        MessageBox.Show("Coś poszło nie tak!");
-                    }
-                    else
-                    {
-                        currentDate = currentDate.Replace('-', '.');
-                        borrows[selectedBorrow].BackDate = currentDate;
+                    var reader = await db.GetCopies(borrows[selectedBorrow].BookID);
+                    if (reader.Read())
+                        borrows[selectedBorrow].BookCopy = reader.GetValue(0).ToString();
 
+                    var newCopies = int.Parse(borrows[selectedBorrow].BookCopy);
+                    MessageBox.Show("New copie: "+newCopies+"borrwos copies:" +borrows[selectedBorrow].BookCopy );
+                    newCopies++;
 
-                    }
+                    await db.ModifyBorrow(borrows[selectedBorrow].ID, currentDate);
+                    var zmieniono =await db.ModifyBookCopy(borrows[selectedBorrow].BookID, newCopies.ToString());
+                    MessageBox.Show("ROWS:"+zmieniono);
+                    currentDate = currentDate.Replace('-', '.');
+                    borrows[selectedBorrow].BackDate = currentDate;
 
                 }
-
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 
@@ -130,7 +126,7 @@ namespace Biblioteka.ViewModels
 
 
 
-        }
+}
 
 
 

@@ -15,6 +15,18 @@ namespace Biblioteka.Models
         private SQLiteCommand command;
 
 
+
+        public void Dispose()
+        {
+
+            Console.WriteLine("CLOSED and disposed command + connection!!!");
+            command.Dispose();
+            connection.Close();
+            connection.Dispose();
+
+
+        }
+
         public SQLiteDBConnector()
         {
             connection = new SQLiteConnection("Data Source=Biblioteka.db;");
@@ -27,7 +39,7 @@ namespace Biblioteka.Models
                 await connection.OpenAsync();
             }
         }
-        public void Close()
+        public void Close()// deprecated
         {
             connection.Close();
             command.Dispose();
@@ -42,8 +54,6 @@ namespace Biblioteka.Models
 
             return await command.ExecuteReaderAsync();
 
-
-            //return await command.ExecuteReaderAsync();
         }
         public  async Task<DbDataReader>   SearchBook(string search)
         {
@@ -218,16 +228,7 @@ namespace Biblioteka.Models
 
 
 
-        public void Dispose()
-        {
-            
-            Console.WriteLine("CLOSE!");
-            command.Dispose();
-            connection.Close();
-            connection.Dispose();
-            
 
-        }
     }
 }
 
