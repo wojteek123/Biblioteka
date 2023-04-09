@@ -3,6 +3,7 @@ using Biblioteka.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -64,11 +65,12 @@ namespace Biblioteka.ViewModels
         public AddBookViewModel AddBookVM { get => _AddBookVM; set => SetProperty(ref _AddBookVM, value); }
         public AddClientViewModel AddClientVM { get => _AddClientVM; set => SetProperty(ref _AddClientVM, value); }
 
+        
         public MainWindowViewModel()
         {
             UseSQLite = true;
             Init();
-
+            ClientDetailsWindows = new List<ClientDetailsViewModel>();
 
 
 
@@ -182,11 +184,51 @@ namespace Biblioteka.ViewModels
             MessageBox.Show("Dodano Wypożyczenie!");
 
         }
+        private List<ClientDetailsViewModel> ClientDetailsWindows;
         private void ShowClientDetails()
         {
-            var client = new Biblioteka.Views.ClientDetails();
-            client.DataContext = new Biblioteka.ViewModels.ClientDetailsViewModel(UseSQLite, users[selectedClient]);
-            client.Show();
+            bool b_CanCreate = true;
+            //TODO show only one
+            foreach (ClientDetailsViewModel clientWinowVM in ClientDetailsWindows)
+            {
+                if(clientWinowVM.klient.ID == users[selectedClient].ID)
+                {
+                    b_CanCreate = false;
+
+                    
+
+                }
+            }
+            if (b_CanCreate)
+            {
+                var client = new Biblioteka.Views.ClientDetails();
+                var datacontext = new ClientDetailsViewModel(UseSQLite, users[selectedClient]);
+                client.DataContext = datacontext;
+                ClientDetailsWindows.Add(datacontext);
+                client.Show();
+                //client.Closed += Client_Closed;
+                client.Closing += Client_Closed;
+            }
+
+
+
+        }
+
+        private void Client_Closed(object sender, EventArgs e)
+        {
+            var Klient = (Views.ClientDetails)sender;
+            ClientDetailsViewModel toRemove = new ClientDetailsViewModel();
+
+            foreach (ClientDetailsViewModel clientWinowVM in ClientDetailsWindows)
+            {
+                if(Klient.DataContext == clientWinowVM)
+                {
+                    toRemove = clientWinowVM;
+                }
+            }
+            ClientDetailsWindows.Remove(toRemove);
+
+
         }
 
         private void AddBorrow()

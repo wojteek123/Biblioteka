@@ -29,13 +29,8 @@ namespace Biblioteka.Views
             curItem.IsSelected = true;
         }
 
-
-
-
-
-
-
-
-
+        private void Window_Closed(object sender, System.EventArgs e)
+        {
+        }
     }
 }

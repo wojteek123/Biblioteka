@@ -7,56 +7,77 @@
         xmlns:viewmodel="clr-namespace:Biblioteka.ViewModels"
         d:DataContext="{d:DesignInstance Type=viewmodel:ClientDetailsViewModel}"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="450" Width="485.776"
+        Title="{Binding Title}" Height="450" Width="535"
+        Closed="Window_Closed"
         
         >
     <Grid>
-        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Imię:" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="113,10,0,0" TextWrapping="Wrap" Text="{Binding klient.name}" VerticalAlignment="Top"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="153*"  />
+            <RowDefinition Height="268*"  />
+        </Grid.RowDefinitions>
 
-        <TextBlock HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="Nazwisko:" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="113,34,0,0" TextWrapping="Wrap" Text="{Binding klient.surname}" VerticalAlignment="Top"/>
+        <GroupBox Grid.Column="0" Grid.Row="0" Header="Szczegóły">
+            <Border >
+                <Grid>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Imię:" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="113,10,0,0" TextWrapping="Wrap" Text="{Binding klient.name}" VerticalAlignment="Top"/>
 
-        <TextBlock HorizontalAlignment="Left" Margin="10,58,0,0" TextWrapping="Wrap" Text="Pesel:" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="113,55,0,0" TextWrapping="Wrap" Text="{Binding klient.pesel}" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="Nazwisko:" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="113,34,0,0" TextWrapping="Wrap" Text="{Binding klient.surname}" VerticalAlignment="Top"/>
+
+                    <TextBlock HorizontalAlignment="Left" Margin="10,58,0,0" TextWrapping="Wrap" Text="Pesel:" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="113,55,0,0" TextWrapping="Wrap" Text="{Binding klient.pesel}" VerticalAlignment="Top"/>
 
 
-        <TextBlock HorizontalAlignment="Left" Margin="10,79,0,0" TextWrapping="Wrap" Text="Email:" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="113,79,0,0" TextWrapping="Wrap" Text="{Binding klient.email}" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,79,0,0" TextWrapping="Wrap" Text="Email:" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="113,79,0,0" TextWrapping="Wrap" Text="{Binding klient.email}" VerticalAlignment="Top"/>
 
 
-        <TextBlock HorizontalAlignment="Left" Margin="10,100,0,0" TextWrapping="Wrap" Text="Telefon:" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="113,103,0,0" TextWrapping="Wrap" Text="{Binding klient.telefon}" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,100,0,0" TextWrapping="Wrap" Text="Telefon:" VerticalAlignment="Top"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="113,103,0,0" TextWrapping="Wrap" Text="{Binding klient.telefon}" VerticalAlignment="Top"/>
+                </Grid>
+            </Border>
+        </GroupBox>
 
-        <ListView x:Name="BorrowList" ItemsSource="{Binding borrows}" SelectedIndex="{Binding selectedBorrow}" HorizontalAlignment="Stretch" Height="251" Margin="10,0,5,0" VerticalAlignment="Bottom">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Książka" DisplayMemberBinding="{Binding Title}" />
-                    <GridViewColumn Header="Data Wypożyczenia" DisplayMemberBinding="{Binding BorrowDate}" />
-                    <GridViewColumn Header="Czas do zwrotu" DisplayMemberBinding="{Binding DateToGetBack}" />
-                    <GridViewColumn Header="Data oddania" DisplayMemberBinding="{Binding BackDate}" />
-                    <GridViewColumn x:Name="ConfirmButton" Header="">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Potwierdź Oddanie" Click="ChangeBorrowSelection"  Command="{Binding BorrowCommand}" >
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Visibility" Value="Hidden"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding BackDate}" Value="Nie oddano!">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
+        <GroupBox  Grid.Row="1" Grid.Column="0" Header="Wypożyczenia">
+            <Border >
+                <Grid>
+                    <ListView x:Name="BorrowList" ItemsSource="{Binding borrows}" SelectedIndex="{Binding selectedBorrow}" >
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Książka" DisplayMemberBinding="{Binding Title}" />
+                                <GridViewColumn Header="Data Wypożyczenia" DisplayMemberBinding="{Binding BorrowDate}" />
+                                <GridViewColumn Header="Czas do zwrotu" DisplayMemberBinding="{Binding DateToGetBack}" />
+                                <GridViewColumn Header="Data oddania" DisplayMemberBinding="{Binding BackDate}" />
+                                <GridViewColumn x:Name="ConfirmButton" Header="">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Potwierdź Oddanie" Click="ChangeBorrowSelection"  Command="{Binding BorrowCommand}" >
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Visibility" Value="Hidden"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding BackDate}" Value="Nie oddano!">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
 
-                </GridView>
-            </ListView.View>
-        </ListView>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Border>
+        </GroupBox>
 
 
 

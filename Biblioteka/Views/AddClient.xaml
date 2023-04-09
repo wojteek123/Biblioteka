@@ -31,18 +31,6 @@
         <TextBox HorizontalAlignment="Left" Height="23" Margin="100,215,0,0" TextWrapping="Wrap" Text="{Binding klient.email}" VerticalAlignment="Top" Width="120"/>
 
 
-
-
-
-
-
-
-        
-        
-       
-       
-        
-
         <Button Command="{Binding AddClientCommand}" Content="Dodaj Czytelnika" HorizontalAlignment="Left" Margin="10,256,0,0" VerticalAlignment="Top" Width="102"/>
 
 

@@ -24,9 +24,13 @@ namespace Biblioteka.ViewModels
         public int selectedBorrow { get => _selectedBorrow; set => SetProperty(ref _selectedBorrow, value); }
 
         private bool UseSQLite;
+
+        private bool _IsClosed;
+        public bool IsClosed { get => _IsClosed; set => SetProperty(ref _IsClosed, value); }
         public ClientDetailsViewModel() { }
         public ClientDetailsViewModel(bool usesqlite, Klient klient)
         {
+            IsClosed = false;
             UseSQLite = usesqlite;
             borrows = new ObservableCollection<Borrow>();
             this.klient = klient;
@@ -35,6 +39,7 @@ namespace Biblioteka.ViewModels
             GetBorrows();
 
         }
+        
 
         private IDBConnector GetNewDBConnector()
         {
@@ -108,13 +113,11 @@ namespace Biblioteka.ViewModels
                         borrows[selectedBorrow].BookCopy = reader.GetValue(0).ToString();
 
                     var newCopies = int.Parse(borrows[selectedBorrow].BookCopy);
-                    MessageBox.Show("New copie: "+newCopies+"borrwos copies:" +borrows[selectedBorrow].BookCopy );
                     newCopies++;
 
                     await db.ModifyBorrow(borrows[selectedBorrow].ID, currentDate);
-                    var zmieniono =await db.ModifyBookCopy(borrows[selectedBorrow].BookID, newCopies.ToString());
-                    MessageBox.Show("ROWS:"+zmieniono);
-                    currentDate = currentDate.Replace('-', '.');
+                    await db.ModifyBookCopy(borrows[selectedBorrow].BookID, newCopies.ToString());
+                    //currentDate = currentDate.Replace('-', '.');
                     borrows[selectedBorrow].BackDate = currentDate;
 
                 }
@@ -126,7 +129,7 @@ namespace Biblioteka.ViewModels
 
 
 
-}
+        }
 
 
 
