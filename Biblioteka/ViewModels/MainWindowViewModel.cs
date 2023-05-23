@@ -122,7 +122,7 @@ namespace Biblioteka.ViewModels
                 MessageBox.Show("Nie wybrano żadnych ksiązek!");
                 return;
             }
-            foreach (Book book in booksToBorrow) //działa ale to jest źle   ŹLE TODOTODOTODOTODOTODO
+            foreach (Book book in booksToBorrow) //TODO działa ale to jest źle   ŹLE
             {
                 if (int.Parse(book.egzemplarze) < 1)
                 {
@@ -131,10 +131,17 @@ namespace Biblioteka.ViewModels
                 }
             }
 
+
+
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Czy na pewno chcesz dokonać wypożyczenia?\n", "Potwierdź wypożyczenie", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult == MessageBoxResult.No)
                 return;
 
+            if(toBorrowDays <= 1)
+            {
+                MessageBox.Show("Okres wypożyczenia nie może być krótszy niż 2 dni!");
+                return;
+            }
 
             string dataOddania = DateConverter.AddDaysTo(currentDate, toBorrowDays);
             dataOddania = DateConverter.MakeSQLDateOnly(dataOddania);
@@ -154,10 +161,12 @@ namespace Biblioteka.ViewModels
                         if (await db.Borrow(users[selectedClient].ID, booksToBorrow[i].ID, dataWyp, dataOddania) != 1)
                         {
                             MessageBox.Show("Cos poszlo nie tak!");
+                            // TODO restore transaction
                         }
                         if (await db.ModifyBookCopy(booksToBorrow[i].ID, copies.ToString()) != 1)
                         {
                             MessageBox.Show("Cos poszlo nie tak!");
+                            // restore transaction
                         }
                         else
                         {
@@ -168,6 +177,7 @@ namespace Biblioteka.ViewModels
                                 {
                                     books[j].egzemplarze = copies.ToString();
                                     booksToBorrow[i].egzemplarze = copies.ToString();
+                                    //TODO add code for refreshing main window books
 
                                 }
 
@@ -399,6 +409,165 @@ namespace Biblioteka.ViewModels
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
 
+            //if (warunek)
+            //{
+            //    // blok kodu do wykonania, jeśli warunek jest prawdziwy
+            //}
+
+            //int liczba = 5;
+            //if (liczba > 0)
+            //{
+            //    Console.WriteLine("Liczba jest dodatnia.");
+            //}
+
+
+            //int liczba = 5;
+            //if (liczba > 0)
+            //{
+            //    Console.WriteLine("Liczba jest dodatnia.");
+            //}
+            //else if (liczba < 0)
+            //{
+            //    Console.WriteLine("Liczba jest ujemna.");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Liczba wynosi zero.");
+            //}
+
+            //int liczba = 10;
+            //if (liczba > 0)
+            //{
+            //    if (liczba % 2 == 0)
+            //    {
+            //        Console.WriteLine("Liczba jest dodatnia i parzysta.");
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine("Liczba jest dodatnia, ale nieparzysta.");
+            //    }
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Liczba jest mniejsza lub równa zero.");
+            //}
+
+
+
+
+            //char opcja = 'B';
+            //switch (opcja)
+            //{
+            //    case 'A':
+            //         Console.WriteLine("Wybrano opcję A.");
+            //        break;
+            //    case 'B':
+            //         Console.WriteLine("Wybrano opcję B.");
+            //        break;
+            //    case 'C':
+            //         Console.WriteLine("Wybrano opcję C.");
+            //        break;
+            //    default:
+            //         Console.WriteLine("Nieznana opcja.");
+            //        break;
+            //}
+
+
+            //int liczba = 5;
+            //// Pętla while
+            //while (liczba < 5)
+            //{
+            //    Console.WriteLine("Pętla while");
+            //    liczba++;
+            //}
+
+            //// Pętla do-while
+            //do
+            //{
+            //    Console.WriteLine("Pętla do-while");
+            //    liczba++;
+            //} while (liczba < 5);
+
+
+            //for (inicjalizacja; warunek; iteracja)
+            //{
+            //    // blok kodu do wykonania
+            //}
+
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    Console.WriteLine(i);
+            //}
+
+
+
+            //foreach (typ element in kolekcja)
+            //{
+            //    // blok kodu do wykonania dla każdego elementu
+            //}
+
+
+            //string[] imiona = { "Anna", "Kamil", "Maria", "Adam" };
+
+            //foreach (string imie in imiona)
+            //{
+            //    Console.WriteLine("Witaj, " + imie + "!");
+            //}
+
+
+            //for (int i = 1; i <= 10; i++)
+            //{
+            //    if (i == 5)
+            //    {
+            //        break;
+            //    }
+            //    Console.WriteLine(i);
+            //}
+
+
+
+
+            //for (int i = 1; i <= 5; i++)
+            //{
+            //    if (i == 3)
+            //    {
+            //        continue;
+            //    }
+            //    Console.WriteLine(i);
+            //}
+
+
+            float divide(float a,float b)
+            {
+                if (b == 0)
+                {
+                    throw new DivideByZeroException($"{a}/{b}");
+                }
+                return a / b;
+            }
+
+
+            try
+            {
+                // Kod, który może zgłosić wyjątek
+                float result = divide(10, 0);
+                Console.WriteLine("Wynik: " + result);
+            }
+            catch (DivideByZeroException ex)
+            {
+                // Obsługa konkretnego rodzaju wyjątku
+                Console.WriteLine("Wystąpił błąd dzielenia przez zero: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Obsługa ogólnego typu wyjątku
+                Console.WriteLine("Wystąpił nieoczekiwany błąd: " + ex.Message);
+            }
+
+
+
+
+
 
 
         }
@@ -408,6 +577,8 @@ namespace Biblioteka.ViewModels
 
     }
 }
+
+
 
 
 

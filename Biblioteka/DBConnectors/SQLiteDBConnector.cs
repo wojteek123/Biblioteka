@@ -14,8 +14,6 @@ namespace Biblioteka.Models
         private SQLiteConnection connection;
         private SQLiteCommand command;
 
-
-
         public void Dispose()
         {
 
@@ -45,6 +43,76 @@ namespace Biblioteka.Models
             command.Dispose();
             connection.Dispose();
         }
+
+
+        public async Task<int> ModifyGenre(string GenreName, string NewName)
+        {
+
+            await OpenConnection();
+            string Query = "UPDATE `gatunek` SET `Nazwa`=@NewName WHERE Nazwa=@GenreName;";
+            command = new SQLiteCommand(Query, connection);
+            command.Parameters.AddWithValue("@GenreName", GenreName);
+            command.Parameters.AddWithValue("@NewName", NewName);
+
+            return await command.ExecuteNonQueryAsync();
+
+
+            
+
+        }
+        public async Task<int> AddGenre(string GenreName)
+        {
+
+            await OpenConnection();
+            string Query = "INSERT INTO gatunek(Nazwa) VALUES(@GenreName)";
+            command = new SQLiteCommand(Query, connection);
+            command.Parameters.AddWithValue("@GenreName", GenreName);
+
+            return await command.ExecuteNonQueryAsync();
+
+
+        }
+        public async Task<DbDataReader> CheckForForeignKeysInGenres(string genre)
+        {
+            await OpenConnection();
+            string query = "SELECT k.* FROM ksiazki k JOIN gatunek g ON k.GatunekID = g.GatunekID WHERE g.Nazwa = @genre;";
+            command = new SQLiteCommand(query, connection);
+            command.Parameters.AddWithValue("@genre", genre);
+
+            return await command.ExecuteReaderAsync();
+
+        }
+
+        public async Task<int> RemoveGenre(string GenreName)
+        {
+            await OpenConnection();
+
+            string Query = "DELETE FROM gatunek WHERE Nazwa  = @GenreName ";
+            command = new SQLiteCommand(Query, connection);
+            command.Parameters.AddWithValue("@GenreName", GenreName);
+
+            return await command.ExecuteNonQueryAsync();
+
+
+        }
+
+        public async Task<int> AddBook(string tytul, string gatunek, string wydawca, string autor, string egzemplarze, string data)
+        {
+            await OpenConnection();
+            string values = "@tytul,@gatunek,@wydawca,@autor,@egzemplarze,@data";
+            string query = "INSERT INTO ksiazki(Tytul,GatunekID,Wydawnictwo,Autor,Egzemplarze,Data_wydania)Values(" + values + ");";
+
+            command = new SQLiteCommand(query, connection);
+            command.Parameters.AddWithValue("@tytul", tytul);
+            command.Parameters.AddWithValue("@gatunek", int.Parse(gatunek));
+            command.Parameters.AddWithValue("@wydawca", wydawca);
+            command.Parameters.AddWithValue("@autor", autor);
+            command.Parameters.AddWithValue("@egzemplarze", int.Parse(egzemplarze));
+            command.Parameters.AddWithValue("@data", data);
+            return await command.ExecuteNonQueryAsync();
+
+        }
+
         public async Task<DbDataReader> /*MySqlDataReader*/  SearchClient(string search)
         {
             await OpenConnection();
@@ -87,7 +155,7 @@ namespace Biblioteka.Models
         public  async Task<DbDataReader> GetGatunekID(string name)
         {
             await OpenConnection ();
-            string booksearch = "SELECT GatunekID FROM gatunek WHERE gatunek.Nazwa='@name';";
+            string booksearch = "SELECT GatunekID FROM gatunek WHERE gatunek.Nazwa=@name;";
             command = new SQLiteCommand(booksearch, connection);
             command.Parameters.AddWithValue("@name", name);
 
@@ -108,22 +176,7 @@ namespace Biblioteka.Models
         }
 
 
-        public async  Task<int> AddBook(string tytul, string gatunek, string wydawca, string autor, string egzemplarze, string data)
-        {
-            OpenConnection();
-            string values = "@tytul,@gatunek,@wydawca,@autor,@egzemplarze,@data";
-            string query = "INSERT INTO ksiazki(Tytul,GatunekID,Wydawnictwo,Autor,Egzemplarze,Data_wydania)Values(" + values + ");";
-            
-            command = new SQLiteCommand(query, connection);
-            command.Parameters.AddWithValue("@tytul", tytul);
-            command.Parameters.AddWithValue("@gatunek", int.Parse(gatunek));
-            command.Parameters.AddWithValue("@wydawca", wydawca);
-            command.Parameters.AddWithValue("@autor", autor);
-            command.Parameters.AddWithValue("@egzemplarze", int.Parse(egzemplarze));
-            command.Parameters.AddWithValue("@data", data);
-            return await  command.ExecuteNonQueryAsync();
 
-        }
         public async Task<int> AddClient(string name, string surname, string pesel, string email, string telefon)
         {
             await OpenConnection();

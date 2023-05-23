@@ -31,15 +31,13 @@ namespace Biblioteka.Models
         Task<int> ModifyBorrow(string IDBorrow, string backdate);
 
 
+        Task<int> ModifyGenre(string GenreName, string NewName);
 
+        Task<int> AddGenre(string GenreName);
 
+        Task<int> RemoveGenre(string GenreName);
 
-
-
-
-
-
-
+        Task<DbDataReader> CheckForForeignKeysInGenres(string genres);
 
 
 

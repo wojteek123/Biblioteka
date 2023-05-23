@@ -32,7 +32,7 @@ namespace Biblioteka.Models
                 return;
             }
             connection = new MySqlConnection(connString);
-            
+
         }
 
         public void Close()
@@ -44,13 +44,35 @@ namespace Biblioteka.Models
         }
         private async Task OpenConnection()
         {
-            while(connection.State == System.Data.ConnectionState.Open)
+            while (connection.State == System.Data.ConnectionState.Open)
             {
                 Console.WriteLine("Słabo Słabo");
                 Thread.Sleep(100);
             }
             if (connection.State == System.Data.ConnectionState.Closed)
                 await connection.OpenAsync();
+        }
+
+
+        public Task<DbDataReader> CheckForForeignKeysInGenres(string genres)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> ModifyGenre(string GenreName, string NewName)
+        {
+            throw new NotImplementedException();
+
+        }
+        public Task<int> AddGenre(string GenreName)
+        {
+            throw new NotImplementedException();
+
+        }
+        public Task<int> RemoveGenre(string GenreName)
+        {
+            throw new NotImplementedException();
+
         }
 
 
@@ -253,11 +275,6 @@ namespace Biblioteka.Models
 
 
         }
-
-
-
-
-
 
 
     }

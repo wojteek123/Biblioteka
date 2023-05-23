@@ -15,7 +15,7 @@ namespace Biblioteka.ViewModels
     public class AddBookViewModel : ObservableObject
     {
         public ICommand AddBook { get; set; }
-
+        public ICommand EditGenresCommand { get; set; }
 
 
         public ObservableCollection<string> gatunki { get; set; }
@@ -39,7 +39,7 @@ namespace Biblioteka.ViewModels
             if (UseSQLite)
             {
                 return new SQLiteDBConnector();
-            }
+            } 
             else
             {
                 return new MySqlDBConnector();
@@ -72,13 +72,37 @@ namespace Biblioteka.ViewModels
                 }
             }
             catch (Exception e) { MessageBox.Show(e.Message); }
-            
 
-           AddBook = new AsyncRelayCommand(addBook);
+
+            AddBook = new AsyncRelayCommand(addBook);
+            EditGenresCommand = new RelayCommand(editGenres);
+
+
+        }
+        Biblioteka.Views.EditGenres genresWindow;
+        private void editGenres()
+        {
+            if(genresWindow != null)
+            {
+                genresWindow.Focus();
+                return;
+            }
+
+            genresWindow = new Biblioteka.Views.EditGenres();
+            var datacontext = new ViewModels.EditGenresViewModel(gatunki);
+            genresWindow.DataContext = datacontext;
+            genresWindow.Show();
+            //genresWindow.Closing += Client_Closed;
+            genresWindow.Closed += Client_Closed;
 
 
         }
 
+        private void Client_Closed(object sender, EventArgs e)
+        {
+            genresWindow = null;
+
+        }
 
         private async Task addBook()
         {
@@ -89,20 +113,24 @@ namespace Biblioteka.ViewModels
                 return;
             }
 
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Jesteś pewien że chcesz dodać taką książkę?\n "+book.ShowPrettyData(), "Potwierdzenie", System.Windows.MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Jesteś pewien że chcesz dodać taką książkę?\n " + book.ShowPrettyData(), "Potwierdzenie", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult != MessageBoxResult.Yes)
                 return;
 
-            
+
 
             try
             {
                 using (var db = GetNewDBConnector())
                 {
                     var reader = await db.GetGatunekID(book.gatunek);
+                    Console.WriteLine("AAAAAAAAAAAAAAA:"+book.gatunek);
                     string gatunekID = "1";
-                    if (reader.Read())
+                    while (reader.Read())
+                    {
+                        MessageBox.Show("To powinno sie wyświetlić tylko raz");
                         gatunekID = reader.GetValue(0).ToString();
+                    }
                     if (await GetNewDBConnector().AddBook(book.tytul, gatunekID, book.wydawca, book.autor, book.egzemplarze, book.MakeSQLDateOnly()) < 1)
                         MessageBox.Show("Coś poszło nie tak!");
                     else

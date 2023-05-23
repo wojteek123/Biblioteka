@@ -29,7 +29,7 @@
         <GroupBox Header="Książki" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
             <Border >
                 <Grid>
-                    <CheckBox Command="{Binding ChangeDatabase}" IsChecked="{Binding UseSQLite}" Content="Używaj SQLite" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,10,0"/>
+                    <!--<CheckBox Command="{Binding ChangeDatabase}" IsChecked="{Binding UseSQLite}" Content="Używaj SQLite" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,10,0"/>-->
                     <TextBox VerticalAlignment="Top" x:Name="BookSearch" Text="{Binding searchBookString}" TextWrapping="Wrap"  Margin="10,9,750,0" />
                     <Button VerticalAlignment="Top"  Command="{Binding SearchBookCommand}" CommandParameter="{Binding Text, ElementName=BookSearch}" Content="Wyszukaj" Margin="195,8,644,0" />
 
@@ -48,13 +48,13 @@
                                 <GridViewColumn Header="Tytuł" DisplayMemberBinding="{Binding tytul}" />
                                 <GridViewColumn Header="Wydawnictwo" DisplayMemberBinding="{Binding wydawca}" />
                                 <GridViewColumn Header="Gatunek" DisplayMemberBinding="{Binding gatunek}" />
-                                <GridViewColumn Header="Egzemplarze" >
+                                <GridViewColumn Width="160" Header="Egzemplarze" >
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <WrapPanel>
-                                                <Button  Width="20" Content="-" Click="ChangeBooksSelection" Command="{Binding RemoveBookCommand }" />
-                                                <TextBlock Margin="10,0,10,0" Text="{Binding egzemplarze}"/>
-                                                <Button  Width="20" Content="+" Click="ChangeBooksSelection" Command="{Binding AddBookCommand }" />
+                                                <Button HorizontalAlignment="Left"  Width="20" Content="-" Click="ChangeBooksSelection" Command="{Binding RemoveBookCommand }" />
+                                                <TextBlock HorizontalAlignment="Center" Margin="10,0,10,0" Text="{Binding egzemplarze}"/>
+                                                <Button HorizontalAlignment="Right"  Width="20" Content="+" Click="ChangeBooksSelection" Command="{Binding AddBookCommand }" />
                                             </WrapPanel>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>

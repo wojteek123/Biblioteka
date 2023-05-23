@@ -19,6 +19,7 @@
         <TextBox HorizontalAlignment="Left" Height="23" Margin="120,111,0,0" TextWrapping="Wrap" Text="{Binding book.autor}" VerticalAlignment="Top" Width="120"/>
 
         <TextBlock HorizontalAlignment="Left" Margin="10,142,0,0" TextWrapping="Wrap" Text="Gatunek" VerticalAlignment="Top"/>
+        <Button Command="{Binding EditGenresCommand}" Content="..." HorizontalAlignment="Left" Margin="93,142,0,0" VerticalAlignment="Top" Width="22"/>
         <ComboBox ItemsSource="{Binding gatunki}" SelectedItem="{Binding book.gatunek,Mode=OneWayToSource}" HorizontalAlignment="Left" Margin="120,142,0,0" VerticalAlignment="Top" Width="120"/>
 
         <TextBox HorizontalAlignment="Left" Height="23" Margin="120,180,0,0" TextWrapping="Wrap" Text="{Binding book.wydawca}" VerticalAlignment="Top" Width="120"/>
@@ -34,6 +35,7 @@
         
         <Button Content="Dodaj Książkę" Command="{Binding AddBook}" HorizontalAlignment="Left" Margin="10,291,0,0" VerticalAlignment="Top" Width="102"/>
         
+
 
 
 
