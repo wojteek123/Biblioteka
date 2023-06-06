@@ -20,7 +20,7 @@ namespace Biblioteka.Models
         Task<DbDataReader> GetGatunekID(string name);
         Task<DbDataReader> ClientsWithBooks();
 
-
+        Task<int> EditBook(string bookID, string tytul, string gatunek, string wydawca, string autor, string egzemplarze, string data);
         Task<int> AddBook(string tytul, string gatunek, string wydawca, string autor, string egzemplarze, string data);
         Task<int> AddClient(string name, string surname, string pesel, string email, string telefon);
 

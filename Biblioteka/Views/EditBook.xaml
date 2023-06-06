@@ -1,0 +1,42 @@
+﻿<Window x:Class="Biblioteka.Views.EditBook"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Biblioteka.Views"
+        mc:Ignorable="d"
+        Title="EditBook" Height="380" Width="350">
+    <Grid>
+
+        <TextBlock HorizontalAlignment="Left" Margin="69,32,0,0" TextWrapping="Wrap" Text="Edytuj" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="120,32,0,0" TextWrapping="Wrap" Text="{Binding NewBook.tytul, Mode=OneTime}" VerticalAlignment="Top"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,78,0,0" TextWrapping="Wrap" Text="Tytuł"  VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="120,78,0,0" TextWrapping="Wrap" Text="{Binding NewBook.tytul}" VerticalAlignment="Top" Width="212"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,111,0,0" TextWrapping="Wrap" Text="Autor" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="120,111,0,0" TextWrapping="Wrap" Text="{Binding NewBook.autor}" VerticalAlignment="Top" Width="212"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,142,0,0" TextWrapping="Wrap" Text="Gatunek" VerticalAlignment="Top"/>
+        <ComboBox ItemsSource="{Binding gatunki}" SelectedItem="{Binding NewBook.gatunek}" HorizontalAlignment="Left" Margin="120,142,0,0" VerticalAlignment="Top" Width="212"/>
+
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="120,180,0,0" TextWrapping="Wrap" Text="{Binding NewBook.wydawca}" VerticalAlignment="Top" Width="212"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,180,0,0" TextWrapping="Wrap" Text="Wydawnictwo" VerticalAlignment="Top"/>
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,216,0,0" TextWrapping="Wrap" Text="Data Wydania" VerticalAlignment="Top"/>
+        <DatePicker HorizontalAlignment="Left" Margin="120,216,0,0" SelectedDate="{Binding NewBook.datawydania}" VerticalAlignment="Top"/>
+
+
+        <TextBox x:Name="egz" PreviewTextInput="OnlyNumeric"  HorizontalAlignment="Left" Height="23" Margin="120,254,0,0" TextWrapping="Wrap" Text="{Binding NewBook.egzemplarze}" VerticalAlignment="Top" Width="29"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,254,0,0" TextWrapping="Wrap" Text="Ilość Egzemplarzy" VerticalAlignment="Top"/>
+
+
+        <Button Content="Zapisz" Command="{Binding EditBookCommand}" HorizontalAlignment="Left" Margin="10,291,0,0" VerticalAlignment="Top" Width="102"/>
+
+
+
+
+
+
+    </Grid>
+</Window>

@@ -61,6 +61,14 @@
                                 </GridViewColumn>
                                 <GridViewColumn Header="Data Wydania" DisplayMemberBinding="{Binding datawydania}" />
 
+                                <GridViewColumn Header="">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  Width="60" Content="Edytuj" Click="ChangeBooksSelection" Command="{Binding DataContext.EditBookCommand ,RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
                             </GridView>
                         </ListView.View>
                     </ListView>

@@ -22,6 +22,8 @@ namespace Biblioteka.ViewModels
         public ICommand BorrowCommand { get; }
         public ICommand ClientsWithBooksCommand { get; }
         public ICommand ChangeDatabase { get; }
+        public ICommand EditBookCommand { get; }
+
 
 
         private bool _UseSQLite;
@@ -80,6 +82,7 @@ namespace Biblioteka.ViewModels
             ClientDetailsCommand = new RelayCommand(ShowClientDetails);
             BorrowCommand = new RelayCommand(Borrow);
             ClientsWithBooksCommand = new AsyncRelayCommand(SearchClientsWithBooks);
+            EditBookCommand = new RelayCommand(EditBook);
         }
         private void Init()
         {
@@ -194,6 +197,8 @@ namespace Biblioteka.ViewModels
             MessageBox.Show("Dodano Wypożyczenie!");
 
         }
+
+
         private List<ClientDetailsViewModel> ClientDetailsWindows;
         private void ShowClientDetails()
         {
@@ -573,6 +578,45 @@ namespace Biblioteka.ViewModels
         }
 
 
+
+        Biblioteka.Views.EditBook EditBookWindow;
+        ViewModels.EditBookViewModel EditBookDataContext;
+
+        private void EditBook()
+        {
+            if (EditBookWindow != null)
+            {
+                if(books[selectedBook] != EditBookDataContext.OryginalBook)
+                {
+                    EditBookDataContext = new ViewModels.EditBookViewModel(books[selectedBook]);
+                    EditBookWindow.DataContext = EditBookDataContext;
+                    EditBookWindow.Title = books[selectedBook].tytul;
+                }
+
+                EditBookWindow.Focus();
+                return;
+            }
+
+            EditBookWindow = new Biblioteka.Views.EditBook();
+
+            EditBookDataContext = new ViewModels.EditBookViewModel(books[selectedBook]);
+            EditBookWindow.DataContext = EditBookDataContext;
+            EditBookWindow.Title = books[selectedBook].tytul;
+            EditBookWindow.Show();
+            EditBookWindow.Closing += EditBook_Closing;
+            EditBookWindow.Closed += EditBook_Closed;
+
+
+        }
+        private void EditBook_Closing(object sender, EventArgs e)
+        {
+            EditBookDataContext = null;
+        }
+        private void EditBook_Closed(object sender, EventArgs e)
+        {
+            EditBookWindow = null;
+            EditBookDataContext = null;
+        }
 
 
     }
