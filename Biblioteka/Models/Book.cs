@@ -30,6 +30,16 @@ namespace Biblioteka.Models
 
         public Book() { ID = tytul = autor = gatunek = wydawca = egzemplarze = ""; datawydania = "1/29/2000 12:00:00 AM";}
 
+        public Book(Book book)
+        {
+            this.ID = book.ID;
+            this.tytul = book.tytul;
+            this.gatunek = book.gatunek;
+            this.wydawca = book.wydawca;
+            this.autor = book.autor;
+            this.egzemplarze = book.egzemplarze;
+            this.datawydania = book.datawydania;
+        }
 
         public Book(string ID,string tytul,string gatunek,string wydawca,string autor,string egzemplarze,string data)
         {

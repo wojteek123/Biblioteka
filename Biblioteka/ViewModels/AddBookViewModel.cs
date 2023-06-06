@@ -124,11 +124,9 @@ namespace Biblioteka.ViewModels
                 using (var db = GetNewDBConnector())
                 {
                     var reader = await db.GetGatunekID(book.gatunek);
-                    Console.WriteLine("AAAAAAAAAAAAAAA:"+book.gatunek);
                     string gatunekID = "1";
                     while (reader.Read())
                     {
-                        MessageBox.Show("To powinno sie wyświetlić tylko raz");
                         gatunekID = reader.GetValue(0).ToString();
                     }
                     if (await GetNewDBConnector().AddBook(book.tytul, gatunekID, book.wydawca, book.autor, book.egzemplarze, book.MakeSQLDateOnly()) < 1)

@@ -42,6 +42,7 @@ namespace Biblioteka.Models
             connection.Dispose();
 
         }
+
         private async Task OpenConnection()
         {
             while (connection.State == System.Data.ConnectionState.Open)
@@ -53,6 +54,11 @@ namespace Biblioteka.Models
                 await connection.OpenAsync();
         }
 
+
+        public Task<int> EditBook(string bookID, string tytul, string gatunek, string wydawca, string autor, string egzemplarze, string data)
+        {
+            throw new NotImplementedException();
+        }
 
         public Task<DbDataReader> CheckForForeignKeysInGenres(string genres)
         {

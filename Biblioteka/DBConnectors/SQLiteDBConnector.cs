@@ -60,6 +60,32 @@ namespace Biblioteka.Models
             
 
         }
+        public async Task<int> EditBook(string bookID,string tytul, string gatunek, string wydawca, string autor, string egzemplarze, string data)
+        {
+
+            await OpenConnection();
+            string Query1 = "UPDATE `ksiazki` SET `Tytul`=@Tytul,`GatunekID`=@GatunekID, `Wydawnictwo`=@Wydawnictwo, `Autor`=@Autor,`Egzemplarze`=@Egzemplarze, `Data_wydania`=@Data ";
+            string QueryEND = " WHERE IDKsiazki=@IDKsiazki;"; 
+
+            command = new SQLiteCommand(Query1 + QueryEND, connection);
+            command.Parameters.AddWithValue("@IDKsiazki", bookID);
+            command.Parameters.AddWithValue("@Tytul", tytul);
+            command.Parameters.AddWithValue("@GatunekID", gatunek);
+            command.Parameters.AddWithValue("@Wydawnictwo", wydawca);
+            command.Parameters.AddWithValue("@Autor",  autor);
+            command.Parameters.AddWithValue("@Egzemplarze", egzemplarze);
+            command.Parameters.AddWithValue("@Data", data);
+
+            return await command.ExecuteNonQueryAsync();
+
+
+
+
+        }
+
+
+
+
         public async Task<int> AddGenre(string GenreName)
         {
 
